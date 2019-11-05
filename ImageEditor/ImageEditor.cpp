@@ -184,10 +184,10 @@ void ImageEditor::packTheRest(Layer* glava, int sp, unsigned char* image)
 				if (matrix[i][j] != nullptr)
 				{
 
-					percentage = ((100 - remained) * trenutni->getOpacity());
-					newOne[i][j]->setBlue((unsigned int)(newOne[i][j]->getBlue() + (matrix[i][j]->getBlue() * percentage)/10000));
-					newOne[i][j]->setGreen((unsigned int)(newOne[i][j]->getGreen() + (matrix[i][j]->getGreen() * percentage)/10000));
-					newOne[i][j]->setRed((unsigned int)(newOne[i][j]->getRed() + (unsigned int)(matrix[i][j]->getRed() *percentage)/1000));
+					percentage = ((100 - remained) * trenutni->getOpacity()/100);
+					newOne[i][j]->setBlue((unsigned int)(newOne[i][j]->getBlue() + (matrix[i][j]->getBlue() * percentage)/100));
+					newOne[i][j]->setGreen((unsigned int)(newOne[i][j]->getGreen() + (matrix[i][j]->getGreen() * percentage)/100));
+					newOne[i][j]->setRed((unsigned int)(newOne[i][j]->getRed() +(matrix[i][j]->getRed() *percentage)/100));
 					remained += percentage;
 				}
 				//menjam sloj
