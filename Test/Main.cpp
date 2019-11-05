@@ -32,7 +32,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->loadImage(input);
 		output = imageEditor->saveImage();
 		break;
-    case 2:
+	case 2:
 		// FLIP HORIZONTAL
 		imageEditor->loadImage(input);
 		imageEditor->flipHorizontal();
@@ -89,7 +89,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->eraseRect(48, 48, 32, 32);
 		output = imageEditor->saveImage();
 		break;
-	/*case 11:
+	case 11:
 		// NEW LAYER: FILL BLACK RECTANGLE IN THE CENTER OF IMAGE AND SET OPACITY OF LAYER TO 50%
 		imageEditor->loadImage(input);
 		imageEditor->addLayer();
@@ -98,13 +98,14 @@ unsigned char* editImage(unsigned char* input) {
 		output = imageEditor->saveImage();
 		break;
 	case 12:
+		//Podbacuje za nijansu
 		// NEW LAYER: FILL YELLOW RECTANGLE IN THE CENTER OF IMAGE
 		imageEditor->loadImage(input);
 		imageEditor->addLayer();
 		imageEditor->setActiveColor("#FFFF00");
 		imageEditor->fillRect(32, 32, 64, 64);
 		output = imageEditor->saveImage();
-		break;*/
+		break;
 	}
 	delete imageEditor;
 	return output;
@@ -114,7 +115,7 @@ int main() {
 
 	// Ova for petlja ce da pokrene sve testove [0 - 12]. Modifikujte uslov za 'if' da biste pokretali samo odredjene testove (npr: if(testNumber == 1 || testNumber == 5)).
 	for(testNumber = 0; testNumber <= numberOfTests; testNumber++)
-		if(testNumber==10 /*|| testNumber == 9|| testNumber == 10||testNumber==11||testNumber==12*/) test();
+		if(testNumber == testNumber) test();
 
 	return 0;
 }

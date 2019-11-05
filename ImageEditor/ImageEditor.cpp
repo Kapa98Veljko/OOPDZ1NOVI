@@ -128,9 +128,10 @@ bool ImageEditor::loadImage(unsigned char* image)
 		Layer* ptr1 = new Layer();
 		ptr1->setLayer(matrix);
 		this->glava = ptr1;
-		this->active = this->last = ptr1;
-	//	ptr1 = nullptr;
-	//	delete ptr1;
+		this->active = ptr1;
+		this->last = ptr1;
+		ptr1 = nullptr;
+
 
 	}
 
@@ -183,20 +184,15 @@ void ImageEditor::packTheRest(Layer* glava, int sp, unsigned char* image)
 				if (matrix[i][j] != nullptr)
 				{
 
-					percentage = ((100 - remained) * (trenutni->getOpacity()/100 ));
-					newOne[i][j]->setBlue(newOne[i][j]->getBlue() + (unsigned int)(matrix[i][j]->getBlue() * percentage/100));
-					newOne[i][j]->setGreen(newOne[i][j]->getGreen() + (unsigned int)(matrix[i][j]->getGreen() * percentage/100));
-					newOne[i][j]->setRed(newOne[i][j]->getRed() + (unsigned int)(matrix[i][j]->getRed() *percentage/100));
+					percentage = ((100 - remained) * trenutni->getOpacity());
+					newOne[i][j]->setBlue((unsigned int)(newOne[i][j]->getBlue() + (matrix[i][j]->getBlue() * percentage)/10000));
+					newOne[i][j]->setGreen((unsigned int)(newOne[i][j]->getGreen() + (matrix[i][j]->getGreen() * percentage)/10000));
+					newOne[i][j]->setRed((unsigned int)(newOne[i][j]->getRed() + (unsigned int)(matrix[i][j]->getRed() *percentage)/1000));
+					remained += percentage;
 				}
 				//menjam sloj
 				trenutni = trenutni->getPrevious();
 				//ovaj uslov za izlazak je dobar!!!
-                //ako nisam dosao do kraja onda uzmi novu matricu i njenu neprovodnost      				
-				if (trenutni != nullptr) {
-					
-					remained += percentage;
-				}
-	
 			}
 			percentage= 0;
 			remained = 0;
@@ -221,8 +217,7 @@ void ImageEditor::packTheRest(Layer* glava, int sp, unsigned char* image)
 }
 
 
-//radi
-//saveImage
+//radi saveImage
 unsigned char* ImageEditor::saveImage()
 {
 
@@ -277,7 +272,7 @@ unsigned char* ImageEditor::saveImage()
 
 	return image;
 }
-
+//radi
 void ImageEditor::freeMatrixfromLayer(Pixel*** matrix)
 {
 	for (int i = 0; i < height; i++)
@@ -293,20 +288,21 @@ void ImageEditor::freeMatrixfromLayer(Pixel*** matrix)
 
 
 //Manipulacija slikom
-
+//radi
 void ImageEditor::addLayer()
 {
 	Layer* ptr = new Layer();
 	Pixel*** currentMatrix = makeCopy(height,width);
 	//dvostruko ulancana lista
 	ptr->setLayer(currentMatrix);
+	last->setNext(ptr);
 	ptr->setPrevious(this->last);
 	//Nadovezivanje LinusTorvalds na kraj liste
 	this->last = ptr;
 	this->active = ptr;
 	ptr = nullptr;
 }
-
+//NIJE TESTIRANA
 void ImageEditor::deleteLayer()
 {
 	Layer* prethodni = this->glava;
@@ -332,7 +328,7 @@ void ImageEditor::deleteLayer()
 		this->active = prethodni;
 	}
 }
-
+//NIJE TESTIRANA
 void ImageEditor::selectLayer(int i)
 {//pitati iliju da li i kako ide castovanje za float
 	Layer* trenutni = this->glava;
@@ -590,21 +586,10 @@ void ImageEditor::crop(int x, int y, int w, int h)
 		height = h;
 	}
 }
-//Crtanje po slici
+//Crtanje po slici//DISKUTABILNO!!!!!!!!!!!!!!!
 void ImageEditor::setActiveColor(string hex)
 {
-	bool format = true; int i = 1;
-	if (hex[0] != '#') { format = false; }
-	while (i < 7)
-	{   
-		if (!(hex[i]>='a'&&hex[i]<='f')||!(hex[i] >= 'A' && hex[i] <= 'F')|| !(hex[i] >= '0' && hex[i] <= '9'))
-		{
-			format = false;
-		}
-		i++;
-	}
-	if (format)
-	{
+	
 		for (int i = 1; i < 7; i++)
 		{
 			if (hex[i] == 'a') { hex[i] = 'A'; }
@@ -615,23 +600,36 @@ void ImageEditor::setActiveColor(string hex)
 			if (hex[i] == 'f') { hex[i] = 'F'; }
 
 		}
-		this->R = fromHextoDecimal(hex[1], hex[2]);
+		this->B = fromHextoDecimal(hex[1], hex[2]);
 		this->G = fromHextoDecimal(hex[3], hex[4]);
-		this->B = fromHextoDecimal(hex[5], hex[6]);
+		this->R = fromHextoDecimal(hex[5], hex[6]);
 
-	}
+	
 }
-
+//radi
 unsigned int ImageEditor::fromHextoDecimal(char a, char b)
 {
 	unsigned int boja = 0;
-	if (a >= 'A') { boja = 16 * (a - 'A' + 10); }
-	else (boja = 16 * (a - '0' + 10));
-	if (b >= 'A') { boja = (b - 'A' + 10); }
-	else (boja = (b - '0' + 10));
+	if (a >= 'A')
+	{
+		boja += 16 * (a - 'A' + 10);
+	}
+	else
+	{
+		boja += 16 * (a - '0');
+     } 
+	if (b>='A')
+	{
+		boja += (a - 'A' + 10);
+	}
+	else
+	{
+		boja += (a - '0');
+	}
+	
 	return boja;
 }
-
+//radi
 void ImageEditor::fillRect(int x, int y, int w, int h)
 {//(x,y) koordianata gornjeg levog ugla
  //(w,h) sirina i visina pravougaonika ako izlazi van opsega onda samo do kraja matrice
@@ -655,25 +653,16 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 
 	matrica = nullptr;
 }
-
+//radi
 void ImageEditor::eraseRect(int x, int y, int w, int h)
 {
 	Pixel*** matrica = active->getLayer();
-	int visina = y + h;
-	int sirina = x + w;
-
-	if (visina > height)
-	{
-		visina = height;
-	}
-	if (sirina > width)
-	{
-		sirina = width;
-	}
+	int visina = ((y + h)>=height)?height:(y+h);
+	int sirina = ((x + w) >= width) ? width : (x+w);
 
 	for (unsigned int i = y; i < visina; i++)
 	{
-		for (unsigned int j = h; j < sirina; j++)
+		for (unsigned int j = x; j < sirina; j++)
 		{
 			delete matrica[i][j];
 			matrica[i][j] = nullptr;

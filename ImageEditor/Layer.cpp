@@ -25,10 +25,10 @@ Layer::~Layer()
 	delete[] this->layer;//brise ceo niz na koji pokazuje layer 
 	layer = nullptr;
 }
-//Samo za aktivni sloj slike magarce
+//SAMO ZA AKTIVNI SLOJ MAGARCE!!!!!!!!!
 void Layer::setOpacity(int i)
 {
-	this->layerOpacity = i;
+	this->layerOpacity= (unsigned int)i;
 }
 
 
