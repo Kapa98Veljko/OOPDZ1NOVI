@@ -160,33 +160,62 @@ int ImageEditor::fillBlanks(int i, unsigned char* image)//OVO MOZE DA JEBE STVAR
 void ImageEditor::packTheRest(Layer* glava, int sp, unsigned char* image)
 {
 	//na prvoj sam ne popunjenoj poziciji i sada treba sabrati slojeve
-
-	unsigned int remained = 100;
-	unsigned int currentOpacity = 0;
-	Pixel*** matrix = last->getLayer();
+	//ZELIM DA SABIRAM PIKSEL PO PIKSEL IZ SVAKE MATRICE NA ODGOVARAJUCIM POZICIJAMA MORA SE MENJATI MATRICA!!!!!
+	
+	//DA LI JE OVO POTREBNO
+	float remained = 0;//refers to opacity of layer
+	float percentage = 0;
 	Pixel*** newOne = new Pixel** [height];
 	Layer* trenutni = last;
+	//pomocna matrica
+	Pixel*** matrix = trenutni->getLayer();
 	for (int i = 0; i < height; i++) 
 	{
-		newOne[i] = new Pixel * [width];
+		newOne[i] = new Pixel * [width];//ovo je dobro
 		for (int j = 0; j < width; j++) 
 		{
-			newOne[i][j] = new Pixel();
-			while (trenutni != nullptr) 
+			newOne[i][j] = new Pixel();//ako nema nicega ispod boji ce u crno
+			while (trenutni != nullptr)
 			{
-				remained -= currentOpacity;
-				if (matrix[i][j] != nullptr) 
+				matrix = trenutni->getLayer();
+				//ako mi je piksel nullptr onda ga ne sabiram!!!
+				//ako je nullptr onda je u potpunosti providan pikesl!!!
+				if (matrix[i][j] != nullptr)
 				{
-					newOne[i][j]->setBlue(newOne[i][j]->getBlue()+(unsigned int)(matrix[i][j]->getBlue()*remained*(trenutni->getOpacity())/100));
-				    newOne[i][j]->setGreen(newOne[i][j]->getGreen() + (unsigned int)(matrix[i][j]->getGreen()*remained * (trenutni->getOpacity())/100));
-					newOne[i][j]->setRed(newOne[i][j]->getRed() + (unsigned int)(matrix[i][j]->getRed()*remained * (trenutni->getOpacity()) / 100));
+
+					percentage = ((100 - remained) * (trenutni->getOpacity()/100 ));
+					newOne[i][j]->setBlue(newOne[i][j]->getBlue() + (unsigned int)(matrix[i][j]->getBlue() * percentage/100));
+					newOne[i][j]->setGreen(newOne[i][j]->getGreen() + (unsigned int)(matrix[i][j]->getGreen() * percentage/100));
+					newOne[i][j]->setRed(newOne[i][j]->getRed() + (unsigned int)(matrix[i][j]->getRed() *percentage/100));
 				}
-				trenutni= trenutni->getPrevious();
-				currentOpacity = trenutni->getOpacity();
+				//menjam sloj
+				trenutni = trenutni->getPrevious();
+				//ovaj uslov za izlazak je dobar!!!
+                //ako nisam dosao do kraja onda uzmi novu matricu i njenu neprovodnost      				
+				if (trenutni != nullptr) {
+					
+					remained += percentage;
+				}
+	
 			}
-			
+			percentage= 0;
+			remained = 0;
 			trenutni = last;
 
+		}//kada se vratim na kraj da bih opet racunao moram da resetujem neprovodnost 
+	}
+
+	for (int i = height - 1; i >= 0; i--)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			image[sp++] = (unsigned char)newOne[i][j]->getBlue();
+			image[sp++] = (unsigned char)newOne[i][j]->getGreen();
+			image[sp++] = (unsigned char)newOne[i][j]->getRed();
+		}
+		if (i > 0)//zato sto ne treba da mi posle poslednjeg reda popunjava nulama
+		{
+			sp = fillBlanks(sp, image);
 		}
 	}
 }
@@ -567,8 +596,8 @@ void ImageEditor::setActiveColor(string hex)
 	bool format = true; int i = 1;
 	if (hex[0] != '#') { format = false; }
 	while (i < 7)
-	{
-		if (hex[i] < 'a' || hex[i]> 'f' || hex[i] > 'F' || hex[i] < 'A')
+	{   
+		if (!(hex[i]>='a'&&hex[i]<='f')||!(hex[i] >= 'A' && hex[i] <= 'F')|| !(hex[i] >= '0' && hex[i] <= '9'))
 		{
 			format = false;
 		}
@@ -607,21 +636,12 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 {//(x,y) koordianata gornjeg levog ugla
  //(w,h) sirina i visina pravougaonika ako izlazi van opsega onda samo do kraja matrice
  //prvo cu da preracunam visinu i sirinu i treba ispitati da li je pokazivac nullptr jer NE treba sve na pocetku postavlajti na 0,0,0
-	int visina = y + x;
-	int sirina = w + h;
-	//DA LI MI OVDE TREBA DA SE DODELI MEMORIJA JA MISLIM DA NE!!!!
-	Pixel*** matrica;
-	matrica = this->active->getLayer();
+	int visina = ((y + h)>=height)?height:(y+h);
+	int sirina = ((x + w) >= width) ? width : (x + w);
+	
+	Pixel*** matrica= this->active->getLayer();
 
 
-	if (visina > this->height)
-	{
-		visina = this->height;
-	}
-	if (sirina > this->width)
-	{
-		sirina = this->width;
-	}
 	for (int i = y; i < visina; i++)
 	{
 		for (int j = x; j < sirina; j++)
@@ -633,7 +653,7 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 		}
 	}
 
-	//DA LI JE OVO POTREBNO DA SE UNISTI!!!!! I NA KOJI NACIN SE TO RADI
+	matrica = nullptr;
 }
 
 void ImageEditor::eraseRect(int x, int y, int w, int h)

@@ -81,7 +81,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->fillRect(32, 32, 64, 64);
 		output = imageEditor->saveImage();
 		break;
-	/*case 10:
+	case 10:
 		// NEW LAYER: FILL BLACK RECTANGLE IN THE CENTER OF IMAGE AND DELETE MIDDLE OF IT
 		imageEditor->loadImage(input);
 		imageEditor->addLayer();
@@ -89,7 +89,7 @@ unsigned char* editImage(unsigned char* input) {
 		imageEditor->eraseRect(48, 48, 32, 32);
 		output = imageEditor->saveImage();
 		break;
-	case 11:
+	/*case 11:
 		// NEW LAYER: FILL BLACK RECTANGLE IN THE CENTER OF IMAGE AND SET OPACITY OF LAYER TO 50%
 		imageEditor->loadImage(input);
 		imageEditor->addLayer();
@@ -114,7 +114,7 @@ int main() {
 
 	// Ova for petlja ce da pokrene sve testove [0 - 12]. Modifikujte uslov za 'if' da biste pokretali samo odredjene testove (npr: if(testNumber == 1 || testNumber == 5)).
 	for(testNumber = 0; testNumber <= numberOfTests; testNumber++)
-		if(testNumber == 1||testNumber==2||testNumber==3|| testNumber == 4|| testNumber == 5|| testNumber==6||testNumber==7||testNumber==8 /*|| testNumber == 9|| testNumber == 10||testNumber==11||testNumber==12*/) test();
+		if(testNumber==10 /*|| testNumber == 9|| testNumber == 10||testNumber==11||testNumber==12*/) test();
 
 	return 0;
 }

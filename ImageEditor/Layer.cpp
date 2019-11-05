@@ -8,7 +8,7 @@ Layer::Layer()
 	this->layer = nullptr;
 	this->next = nullptr;
 	this->previous = nullptr;
-	this->layerOpacity = 0;
+	this->layerOpacity = 100;
 	this->sirina = 0;
 	this->visina = 0;
 }
