@@ -129,15 +129,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="BlueSquare.bmp" />
-    <Image Include="FourSquares.bmp" />
-    <Image Include="OrangeFlower.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Test.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,24 +15,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="BlueSquare.bmp">
-      <Filter>Source Files</Filter>
-    </Image>
-    <Image Include="FourSquares.bmp">
-      <Filter>Source Files</Filter>
-    </Image>
-    <Image Include="OrangeFlower.bmp">
-      <Filter>Source Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Test.obj">
-      <Filter>Source Files</Filter>
-    </Object>
   </ItemGroup>
 </Project>

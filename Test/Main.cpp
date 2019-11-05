@@ -16,7 +16,7 @@ void test();
 // Testovi 6, 7 i 8 vrse manipulaciju nad slikom OrangeFlower.bmp
 // Date slike moraju da se nalaze na istom mestu gde i test.obj fajl
 unsigned char* editImage(unsigned char* input) {
-
+	  
 	ImageEditor* imageEditor = new ImageEditor;
 	unsigned char* output = nullptr;
 	switch (testNumber) {
@@ -115,7 +115,7 @@ int main() {
 
 	// Ova for petlja ce da pokrene sve testove [0 - 12]. Modifikujte uslov za 'if' da biste pokretali samo odredjene testove (npr: if(testNumber == 1 || testNumber == 5)).
 	for(testNumber = 0; testNumber <= numberOfTests; testNumber++)
-		if(testNumber == 1|| testNumber == 2 || testNumber == 3 || testNumber == 4 || testNumber == 5 || testNumber == 6 || testNumber == 7 || testNumber == 8 || testNumber == 9 || testNumber == 10 || testNumber == 11 || testNumber == 12 ) test();
+		if(testNumber ==testNumber) test();
 
 	return 0;
 }

@@ -306,26 +306,26 @@ void ImageEditor::addLayer()
 void ImageEditor::deleteLayer()
 {
 	Layer* prethodni = this->glava;
-	if (prethodni = this->active)
+	if (prethodni == this->active)
 	{
 		std::cout << "<GRESKA!>Napravili ste gresku nije moguce izbrisati sloj sa ucitanom slikom!!!" << std::endl;
 	}
 	//ako nije uneta nijedna slika
 	else if (this->glava == nullptr)
 	{
-		std::cout << "<GRESKA>Greska ne postoji ni jedan ucitani sloj!!!" << std::endl;
+		std::cout << "<GRESKA>Nije ucitan ni jedan sloj koji bi mogao biti izbrisan!!" << std::endl;
 	}
-	else
-	{    //ili dok ne dodje do kraja liste ili dok ne dodje iza aktivnog koji nije ucitana slika
-		//lose napisano while (prethodni->getNext() != nullptr && prethodni->getNext() != this->active)
-		{
-			prethodni = prethodni->getNext();
+	else 
+	{
+		prethodni = active->getPrevious();
+		if (active->getNext() == nullptr) { prethodni->setNext(nullptr); }
+		else {
+			
+			prethodni->setNext(active->getNext());
+			active->getNext()->setPrevious(prethodni);
 		}
+		delete active;
 
-		prethodni->setNext(this->active->getNext());
-		freeMatrixfromLayer(this->active->getLayer());
-		delete this->active;
-		this->active = prethodni;
 	}
 }
 //NIJE TESTIRANA
@@ -343,7 +343,7 @@ void ImageEditor::selectLayer(int i)
 	else
 	{
 		int k = 0;
-		while (k < i && trenutni->getNext() != nullptr)
+		while (k < i && trenutni != nullptr)
 		{
 			trenutni = trenutni->getNext();
 			k++;
@@ -395,30 +395,37 @@ unsigned int* ImageEditor::findAverage(int h, int w, int size)
 	Pixel*** matrix = this->active->getLayer();//kako ovo da se unisti!!!
 	//gornje leve koordinate pravougaonika/kvadrata iz kog se vadi preosek 
 	//nalazenje koorsinata je valjda dobro sada to treba prilagoditi za visinu i sirinu
-	int x = ((w - size) <=0) ? 0 : (w - size);//ove dve koordinate su iste
-	int y = ((h - size) <=0) ? 0 : (h - size);//ostavicu ovako zbog moguce modifikacije!!!
-	
+	int x = ((w - size) <= 0) ? 0 : (w - size);//ove dve koordinate su iste
+	int y = ((h - size) <= 0) ? 0 : (h - size);//ostavicu ovako zbog moguce modifikacije!!!
+
 	int visina = ((h + size) >= height) ? height : (h + size + 1);
 	int sirina = ((w + size) >= width) ? width : (w + size + 1);
-
-	for (unsigned int i = y; i < visina; i++)
+	if (matrix[h][w] != nullptr)//me moze se blurovatio onaj koji je nullptr
 	{
-		for (unsigned int j = x; j<sirina; j++)
+		for (unsigned int i = y; i < visina; i++)
 		{
-			//ako je neki piksel nullptr onda ga ne sabirm
-			if (matrix[i][j]!= nullptr)//ovde ce morati da se prepravi
+			for (unsigned int j = x; j < sirina; j++)
 			{
-				red += matrix[i][j]->getRed();
-				green += matrix[i][j]->getGreen();
-				blue += matrix[i][j]->getBlue();
-				k++;
+				//ako je neki piksel nullptr onda ga ne sabirm
+				if (matrix[i][j] != nullptr)
+				{
+					red += matrix[i][j]->getRed();
+					green += matrix[i][j]->getGreen();
+					blue += matrix[i][j]->getBlue();
+					k++;
+				}
 			}
 		}
 	}
-	prosek[0] = (unsigned int)(blue/k );
-	prosek[1] = (unsigned int)(green /k);
-	prosek[2] = (unsigned int)(red/ k);
+
+	if (k != 0) 
+	{
+		prosek[0] = (unsigned int)(blue / k);
+		prosek[1] = (unsigned int)(green / k);
+		prosek[2] = (unsigned int)(red / k);
 	
+	}
+	else { prosek = nullptr; }
 
 	return prosek;
 
@@ -458,7 +465,7 @@ void ImageEditor::invertColors()
 	}
 	trenutni = nullptr;
 }
-//radi
+//radi podeseno za 
 void ImageEditor::toGrayScale()
 {
 	Pixel*** trenutni = this->active->getLayer();
@@ -466,11 +473,14 @@ void ImageEditor::toGrayScale()
 	{
 		for (int j = 0; j < this->width; j++)
 		{
-			unsigned int togray = (unsigned int)(0.3 * trenutni[i][j]->getRed()) + (unsigned int)(0.59 * trenutni[i][j]->getGreen()) + (unsigned int)(0.11 * trenutni[i][j]->getBlue());
-			if (trenutni[i][j] == nullptr) { trenutni[i][j] = new Pixel; }
-			trenutni[i][j]->setRed(togray);
-			trenutni[i][j]->setGreen(togray);
-			trenutni[i][j]->setBlue(togray);
+			if (trenutni[i][j] != nullptr)
+			{
+				unsigned int togray = (unsigned int)(0.3 * trenutni[i][j]->getRed()) + (unsigned int)(0.59 * trenutni[i][j]->getGreen()) + (unsigned int)(0.11 * trenutni[i][j]->getBlue());
+				if (trenutni[i][j] == nullptr) { trenutni[i][j] = new Pixel; }
+				trenutni[i][j]->setRed(togray);
+				trenutni[i][j]->setGreen(togray);
+				trenutni[i][j]->setBlue(togray);
+			}
 		}
 	}
 	trenutni = nullptr;
@@ -488,12 +498,17 @@ void ImageEditor::blur(int size)
 	{
 		for (unsigned int j = 0; j < width; j++)
 		{
-			//if (matrix[i][j] = nullptr) {} TREBA RESITI STA AKO SE DESI DA JE NULLPTR TREBA DA SE BLURUJE ZA SAD APRETPOSTAVKA DA NIJE!!
+			
+			
 				prosek = findAverage(i, j, size);
-				matrix[i][j] = new Pixel();
-				matrix[i][j]->setRed(prosek[2]);
-				matrix[i][j]->setGreen(prosek[1]);
-				matrix[i][j]->setBlue(prosek[0]);
+				if (prosek != nullptr) 
+				{
+					matrix[i][j] = new Pixel();
+					matrix[i][j]->setRed(prosek[2]);
+					matrix[i][j]->setGreen(prosek[1]);
+					matrix[i][j]->setBlue(prosek[0]);
+				}
+				else { matrix[i][j] = nullptr; }
 			
 		}
 	}
@@ -513,13 +528,19 @@ void ImageEditor::flipHorizontal()
 	{
 		int k = this->width - 1;
 		for (int j = 0; j < width; j++)
-		{
-			copy[i][k] = new Pixel;
-			copy[i][k]->setBlue(trenutni[i][j]->getBlue());
-			copy[i][k]->setGreen(trenutni[i][j]->getGreen());
-			copy[i][k]->setRed(trenutni[i][j]->getRed());
+		{ 
+			if (trenutni[i][j] != nullptr) {
+				copy[i][k] = new Pixel;
+				copy[i][k]->setBlue(trenutni[i][j]->getBlue());
+				copy[i][k]->setGreen(trenutni[i][j]->getGreen());
+				copy[i][k]->setRed(trenutni[i][j]->getRed());
+				
+			}
+			else 
+			{
+				copy[i][k] = nullptr;
+			}
 			k--;
-
 		}
 	}
 	this->active->setLayer(copy);
@@ -539,11 +560,16 @@ void ImageEditor::flipVertical()
 	{
 		int k = this->height - 1;
 		for (unsigned int j = 0; j < this->height; j++)
-		{
-			copy[k][i] = new Pixel();
-			copy[k][i]->setBlue(trenutni[j][i]->getBlue());
-			copy[k][i]->setRed(trenutni[j][i]->getRed());
-			copy[k][i]->setGreen(trenutni[j][i]->getGreen());
+		{ 
+			if (trenutni[i][j] != nullptr) {
+				copy[k][i] = new Pixel();
+				copy[k][i]->setBlue(trenutni[j][i]->getBlue());
+				copy[k][i]->setRed(trenutni[j][i]->getRed());
+				copy[k][i]->setGreen(trenutni[j][i]->getGreen());
+			}
+			else {
+				copy[k][i] = nullptr;
+			}
 			k--;
 		}
 	}
@@ -572,7 +598,13 @@ void ImageEditor::crop(int x, int y, int w, int h)
 			{
 				for (unsigned int j = 0; j < sirina; j++)
 				{
-					matrix[i][j] = new Pixel(pom[i + y][j + x]->getRed(), pom[i + y][j + x]->getGreen(), pom[i + y][j + x]->getBlue());
+					if (pom[i][j] != nullptr) {
+						matrix[i][j] = new Pixel(pom[i + y][j + x]->getRed(), pom[i + y][j + x]->getGreen(), pom[i + y][j + x]->getBlue());
+					}
+					else
+					{
+						matrix[i][j] = nullptr;
+					}
 				}
 			}
 			freeMatrixfromLayer(trenutni->getLayer());//brise starumatricu
@@ -589,7 +621,14 @@ void ImageEditor::crop(int x, int y, int w, int h)
 //Crtanje po slici//DISKUTABILNO!!!!!!!!!!!!!!!
 void ImageEditor::setActiveColor(string hex)
 {
-	
+	bool fill = true;
+	if (hex[0] != '#') { fill = false; }
+	for (int i = 1; i < 7; i++) 
+	{
+		if (hex[i] < '0' || (hex[i] > '9' && hex[i] < 'A') || (hex[i] > 'F' && hex[i] < 'a') || hex[i]>'f') { fill = false; }
+	}
+	if (fill)
+	{
 		for (int i = 1; i < 7; i++)
 		{
 			if (hex[i] == 'a') { hex[i] = 'A'; }
@@ -603,7 +642,7 @@ void ImageEditor::setActiveColor(string hex)
 		this->B = fromHextoDecimal(hex[1], hex[2]);
 		this->G = fromHextoDecimal(hex[3], hex[4]);
 		this->R = fromHextoDecimal(hex[5], hex[6]);
-
+	}
 	
 }
 //radi
@@ -647,6 +686,12 @@ void ImageEditor::fillRect(int x, int y, int w, int h)
 			if (matrica[i][j] == nullptr)
 			{
 				matrica[i][j] = new Pixel(this->R, this->G, this->B);
+			}
+			else 
+			{
+				matrica[i][j]->setBlue(this->B);
+				matrica[i][j]->setGreen(this->G);
+				matrica[i][j]->setRed(this->R);
 			}
 		}
 	}
