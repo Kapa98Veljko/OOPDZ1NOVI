@@ -318,13 +318,15 @@ void ImageEditor::deleteLayer()
 	else 
 	{
 		prethodni = active->getPrevious();
-		if (active->getNext() == nullptr) { prethodni->setNext(nullptr); }
+		if (active->getNext() == nullptr) { prethodni->setNext(nullptr); last = prethodni; }
 		else {
 			
 			prethodni->setNext(active->getNext());
 			active->getNext()->setPrevious(prethodni);
 		}
 		delete active;
+		active = prethodni;
+		prethodni = nullptr;
 
 	}
 }
@@ -343,7 +345,7 @@ void ImageEditor::selectLayer(int i)
 	else
 	{
 		int k = 0;
-		while (k < i && trenutni != nullptr)
+		while (k <= i && trenutni != nullptr)
 		{
 			trenutni = trenutni->getNext();
 			k++;
@@ -576,7 +578,6 @@ void ImageEditor::flipVertical()
 	this->active->setLayer(copy);
 	freeMatrixfromLayer(trenutni);
 }
-//radi za divno cudo
 void ImageEditor::crop(int x, int y, int w, int h)
 {	//zavrsena 
 	if (x < 0 || y < 0 || w < 0 || h < 0 || x>width || y>height )
@@ -598,8 +599,8 @@ void ImageEditor::crop(int x, int y, int w, int h)
 			{
 				for (unsigned int j = 0; j < sirina; j++)
 				{
-					if (pom[i][j] != nullptr) {
-						matrix[i][j] = new Pixel(pom[i + y][j + x]->getRed(), pom[i + y][j + x]->getGreen(), pom[i + y][j + x]->getBlue());
+					if (pom[i+y][j+x] != nullptr) {
+						matrix[i][j] = new Pixel(pom[i+y][j+x]->getRed(), pom[i+y][j+x]->getGreen(), pom[i+y][j+x]->getBlue());
 					}
 					else
 					{
